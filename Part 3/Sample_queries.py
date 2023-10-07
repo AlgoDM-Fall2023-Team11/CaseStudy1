@@ -67,13 +67,13 @@ actual_queries = {
         WHERE
             i_manufact_id = {manufacturer_id}
             AND i_item_sk = ws_item_sk 
-            AND d_date BETWEEN {formatted_ws_date} AND dateadd(day, 90, to_date({formatted_ws_date}))
+            AND d_date BETWEEN '{formatted_ws_date}' AND dateadd(day, 90, to_date('{formatted_ws_date}'))
             AND d_date_sk = ws_sold_date_sk 
             AND ws_ext_discount_amt > (
                 SELECT 1.3 * avg(ws_ext_discount_amt) 
                 FROM web_sales, date_dim
                 WHERE ws_item_sk = i_item_sk 
-                AND d_date BETWEEN {formatted_ws_date} AND dateadd(day, 90, to_date({formatted_ws_date}))
+                AND d_date BETWEEN '{formatted_ws_date}' AND dateadd(day, 90, to_date('{formatted_ws_date}'))
                 AND d_date_sk = ws_sold_date_sk 
             ) 
         ORDER BY sum(ws_ext_discount_amt)
@@ -109,10 +109,10 @@ actual_queries = {
             ,customer_address
             ,web_site
         WHERE
-            d_date BETWEEN {date} AND dateadd(day, 60, to_date({date}))
+            d_date BETWEEN '{formatted_date}' AND dateadd(day, 60, to_date('{formatted_date}'))
             AND ws1.ws_ship_date_sk = d_date_sk
             AND ws1.ws_ship_addr_sk = ca_address_sk
-            AND ca_state = {state}
+            AND ca_state = '{state}'
             AND ws1.ws_web_site_sk = web_site_sk
             AND web_company_name = 'pri'
             AND EXISTS (
@@ -179,13 +179,12 @@ actual_queries = {
         limit 100;
     """,
 
-    7: """
-    with 
+    7: """with ssci as (
 select ss_customer_sk customer_sk
       ,ss_item_sk item_sk
 from store_sales,date_dim
 where ss_sold_date_sk = d_date_sk
-  and d_month_seq between 1206 and 1206 + 11
+  and d_month_seq between {dms} and {dms} + 11
 group by ss_customer_sk
         ,ss_item_sk),
 csci as(
@@ -193,7 +192,7 @@ csci as(
       ,cs_item_sk item_sk
 from catalog_sales,date_dim
 where cs_sold_date_sk = d_date_sk
-  and d_month_seq between {DMS} and {DMS} + 11
+  and d_month_seq between 1200 and 1200 + 11
 group by cs_bill_customer_sk
         ,cs_item_sk)
  select  sum(case when ssci.customer_sk is not null and csci.customer_sk is null then 1 else 0 end) store_only
@@ -217,10 +216,10 @@ from
     	,date_dim
 where
 	ss_item_sk = i_item_sk
-  	and i_category in ({category1}, {category2}, {category3})
+  	and i_category in ('{category1}', '{category2}', '{category3}')
   	and ss_sold_date_sk = d_date_sk
-	and d_date between cast({date} as date)
-				and (cast({date} as date) + interval '30 days')
+	and d_date between cast('1999-02-22' as date)
+				and (cast('1999-02-22' as date) + interval '30 days')
 group by
 	i_item_id
         ,i_item_desc

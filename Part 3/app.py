@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 from Sample_queries import actual_queries
+from vars import ca_state, i_cat
 
 # Replace with your Snowflake credentials
 snowflake_credentials = {
@@ -70,7 +71,7 @@ st.write(query_definitions[selected_query])
 if selected_query in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
     st.subheader("Query Substitution Parameters:")
     # Define the parameters for each query
-    year = month = ws_date = buy_potential = gmt_offset = manufacturer_id = reason_number = dependant_count = date = state = hours = hoursam = hourspm  = DMS = category1 = category2 = category3 = None
+    year = month = ws_date = buy_potential = gmt_offset = manufacturer_id = reason_number = dependant_count = date = state = hours = hoursam = hourspm  = dms = category1 = category2 = category3  = None
     # Define the parameters for each query
     if selected_query == 0:
         # Input query substitution parameters for Query 6
@@ -93,29 +94,29 @@ if selected_query in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
         reason_number = st.number_input("Reason Number", min_value=1, max_value=100, value=28)
     elif selected_query == 4:
         # Input query substitution parameters for Query 4
-        date = st.number_input("Month",pd.to_datetime('1999-02-27'))
-        state = st.text_input('State', 'GA')
+        date = st.date_input("Date",pd.to_datetime('1999-02-27'))
+        formatted_date = date.strftime('%Y-%m-%d')
+        state = st.selectbox('State', ca_state)
     elif selected_query == 5:
         # Input query substitution parameters for Query 4
         date = st.date_input("Date", pd.to_datetime('1999-02-27'))
         formatted_date = date.strftime('%Y-%m-%d')
-        state = st.text_input('State', 'GA')
+        state = st.selectbox('State', ca_state)
     elif selected_query == 6:
         # Input query substitution parameters for Query 6
         dependant_count = st.number_input("dependant Count", min_value=1, max_value=100, value=7)
         hours = st.number_input("Hours", min_value=1, max_value=24, value=20)
     elif selected_query == 7:
         # Input query substitution parameters for Query 7
-        DMS = st.number_input("d_month_seq", min_value=1, max_value=1500, value=1200)
+        dms = st.number_input("d_month_seq", min_value=1, max_value=1500, value=1200)
     elif selected_query == 8:
         # Input query substitution parameters for Query 8
-        date = st.date_input("Date", pd.to_datetime('1999-02-22'))
-        category1 = st.text_input('category1','Sports')
-        category2 = st.text_input('category2','Books')
-        category3 = st.text_input('category3','Home')
+        category1 = st.selectbox('Category 1', i_cat)
+        category2 = st.selectbox('Category 2', i_cat)
+        category3 = st.selectbox('Category 3', i_cat)
     elif selected_query == 9:
         # Input query substitution parameters for Query 9
-        DMS = st.number_input("d_month_seq", min_value=1, max_value=1500, value=1200)
+        dms = st.number_input("d_month_seq", min_value=1, max_value=1500, value=1200)
 
 # Execute the query
 if st.button("Run Query"):
@@ -143,13 +144,14 @@ if st.button("Run Query"):
 
             #query94 and query95
             formatted_date = formatted_date,
+            date = date,
             state = state,
 
             # #query96
             hours = hours,
 
             #query97
-            DMS= DMS,
+            dms= dms,
 
             #query98
             category1= category1,
@@ -161,5 +163,8 @@ if st.button("Run Query"):
 
     # Run the query and display results
     st.subheader("Query Results:")
-    result_df = execute_query_snowflake(query)
-    st.write(result_df)
+    try:
+        result_df = execute_query_snowflake(query)
+        st.write(result_df)
+    except:
+        st.write("Please Select Appropriate Parameters")
