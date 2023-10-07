@@ -85,15 +85,13 @@ st.write(query_definitions[selected_query])
 if selected_query in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
     st.subheader("Query Substitution Parameters:")
     # Define the parameters for each query
-    year = month = ws_date = buy_potential = gmt_offset = manufacturer_id = reason_number = dependant_count = date = state = hours = hours_am = hours_pm =  None
+    year = month = ws_date = buy_potential = gmt_offset = manufacturer_id = reason_number = dependant_count = date = state = hours = hoursam = hourspm =  None
     # Define the parameters for each query
     if selected_query == 0:
         # Input query substitution parameters for Query 6
         dependant_count = st.number_input("dependant Count", min_value=1, max_value=100, value=6)
-        hours_am = st.number_input("Morning", min_value=1, max_value=24, value=8)
-        hour_am_plus_1 = hours_am + 1 
-        hours_pm = st.number_input("Evening", min_value=1, max_value=24, value=19)
-        hours_pm_plus_1 = hours_pm + 1
+        hoursam = st.number_input("Morning", min_value=1, max_value=24, value=8)   
+        hourspm = st.number_input("Evening", min_value=1, max_value=24, value=19)
     elif selected_query == 1:
         # Input query substitution parameters for Query 1
         year = st.number_input("Year", min_value=1980, max_value=2023, value=1998)
@@ -127,11 +125,11 @@ if selected_query in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
 if st.button("Run Query"):
     # Build the query with substitution parameters
     query = actual_queries[selected_query]
-    if selected_query in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+    if selected_query in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]:
         query = query.format(
             #query90
-            hours_am = hours_am,
-            hours_pm = hours_pm,
+            hoursam = hoursam,
+            hourspm = hourspm,
             dependant_count = dependant_count,
 
             #query 91
@@ -160,7 +158,7 @@ if st.button("Run Query"):
             hours = hours
 
         )
-    st.write(date)
+        
     # Run the query and display results
     st.subheader("Query Results:")
     result_df = execute_query_snowflake(query)

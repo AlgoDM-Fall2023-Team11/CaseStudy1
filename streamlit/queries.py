@@ -4,7 +4,7 @@ query90 = """select  cast(amc as decimal(15,4))/cast(pmc as decimal(15,4)) am_pm
        where ws_sold_time_sk = time_dim.t_time_sk
          and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
          and ws_web_page_sk = web_page.wp_web_page_sk
-         and time_dim.t_hour between {hour_am} and {hour_am_plus_1}
+         and time_dim.t_hour between {hoursam} and {hoursam}+1
          and household_demographics.hd_dep_count = {dependant_count}
          and web_page.wp_char_count between 5000 and 5200) at,
       ( select count(*) pmc
@@ -12,7 +12,7 @@ query90 = """select  cast(amc as decimal(15,4))/cast(pmc as decimal(15,4)) am_pm
        where ws_sold_time_sk = time_dim.t_time_sk
          and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
          and ws_web_page_sk = web_page.wp_web_page_sk
-         and time_dim.t_hour between {hour_pm} and {hour_pm_plus_1}
+         and time_dim.t_hour between {hourspm} and {hourspm}+1
          and household_demographics.hd_dep_count = {dependant_count}
          and web_page.wp_char_count between 5000 and 5200) pt
  order by am_pm_ratio
@@ -68,26 +68,21 @@ query92 = """SELECT
     LIMIT 100;"""
 
 
-query93 = """SELECT  
-        ss_customer_sk,
-        sum(act_sales) sumsales
-    FROM (
-        SELECT 
-            ss_item_sk,
-            ss_ticket_number,
-            ss_customer_sk,
-            CASE 
-                WHEN sr_return_quantity IS NOT NULL THEN (ss_quantity - sr_return_quantity) * ss_sales_price
-                ELSE (ss_quantity * ss_sales_price)
-            END AS act_sales
-        FROM 
-            store_sales 
-        LEFT OUTER JOIN store_returns ON (sr_item_sk = ss_item_sk AND sr_ticket_number = ss_ticket_number)
-        WHERE sr_reason_sk = r_reason_sk AND r_reason_desc = 'reason {reason_number}'
-        ) t
-    GROUP BY ss_customer_sk
-    ORDER BY sumsales, ss_customer_sk
-    LIMIT 100;"""
+query93 = """select  ss_customer_sk
+            ,sum(act_sales) sumsales
+      from (select ss_item_sk
+                  ,ss_ticket_number
+                  ,ss_customer_sk
+                  ,case when sr_return_quantity is not null then (ss_quantity-sr_return_quantity)*ss_sales_price
+                                                            else (ss_quantity*ss_sales_price) end act_sales
+            from store_sales left outer join store_returns on (sr_item_sk = ss_item_sk
+                                                               and sr_ticket_number = ss_ticket_number)
+                ,reason
+            where sr_reason_sk = r_reason_sk
+              and r_reason_desc = 'reason {reason_number}') t
+      group by ss_customer_sk
+      order by sumsales, ss_customer_sk
+    limit 100;"""
 
 query94 = """SELECT  
         count(distinct ws_order_number) as "order count",
