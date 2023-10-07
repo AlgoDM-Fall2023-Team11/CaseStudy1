@@ -1,4 +1,5 @@
 # CaseStudy1
+Codelabs Link: https://codelabs-preview.appspot.com/?file_id=1z_dlg3GJ3bc3A2AV02KSOxof3WV1KCVaZyoNbq_bDNA#0
 
 ## Overview
 
@@ -8,11 +9,17 @@ This repository contains the code and documentation for a project aimed at evalu
 
 In this section, we explore and analyze various algorithmic marketing concepts. There are multiple elements to consider when evaluating these concepts, and we will discuss them in detail.
 
+![image](https://github.com/AlgoDM-Fall2023-Team11/CaseStudy1/assets/69983754/3f30235d-6a3d-4252-8fb3-824bb4d5a38f)
+
 ## Part 2: Building a Marketing Dashboard
 
 ### Project Description
 
 Your company is embarking on a project to build a marketing dashboard using Snowflake and an analytics tool of your choice. This section covers the design and implementation of the prototype for this marketing dashboard.
+
+![image](https://github.com/AlgoDM-Fall2023-Team11/CaseStudy1/assets/69983754/5fd7a479-24bc-4093-84ea-cd9b528d0c64)
+
+Link to Dashboard (Hex): https://app.hex.tech/212bbec8-feca-4ce7-9e9f-978ca07f749c/app/4af11c19-336f-4a06-b637-6f9490e899bb/latest
 
 #### Design
 
