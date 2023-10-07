@@ -1,0 +1,2996 @@
+# Upload the file on hex run the dashboard
+
+schemaVersion: 3
+meta:
+  sourceVersionId: cd238281-b602-4c3e-ac43-25f548b0f75e # DO NOT CHANGE - Hex uses this to match up project versions when reimporting the file
+  description: "TPC-DS models the decision support functions of a retail product supplier. The supporting schema contains vital business information, such as customer, order, and product data. TPCDS_SF10TCL: The 10 TB (scale factor 10,000) version represents 65 million customers and over 400,000 items stored, with sales data spanning 3 channels — stores, catalogs, and the web — covering 5 years. The largest table, STORE_SALES, contains nearly 29 billion rows, and the fact tables contain over 56 billion rows in total."
+  projectId: 4af11c19-336f-4a06-b637-6f9490e899bb # DO NOT CHANGE - Unique ID of the project from which this file was generated
+  title: TPC Benchmark™ DS (TPC-DS) Dashboard
+  timezone: null
+  appTheme: SYS_PREF
+  codeLanguage: PYTHON
+  status: null
+  categories: []
+  castDecimalsDefault: true
+  logicQueryCacheTimeout: null
+  publishedQueryCacheTimeout:
+    type: disabled
+projectAssets:
+  dataConnections: []
+  envVars: []
+  secrets: []
+sharedAssets:
+  secrets: []
+  vcsPackages: []
+  dataConnections:
+    - dataConnectionId: 34796a4c-0835-4458-b502-d4df0118292d # [Demo] Hex Public Data (snowflake)
+    - dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470 # TPC Benchmark™ DS (TPC-DS) Dashboard (snowflake)
+  externalFileIntegrations: []
+cells:
+  - cellType: CODE
+    cellId: 5131e318-d982-4c60-ba69-dbffc46b7b4e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        import pandas as pd
+        import numpy as np
+        import matplotlib.pyplot as plt
+        import plotly.express as px
+  - cellType: TEXT
+    cellId: 189b407d-a878-4752-ae0e-4ea10cba932e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h2
+          children:
+            - text: Query Defination
+  - cellType: TEXT
+    cellId: a162643c-9879-435a-894f-ec5c31ae89e6 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: paragraph
+          children:
+            - text: TPC-DS contains a set of 99 queries with wide variation in complexity and range of data scanned. Each TPC-DS query asks a business question and includes the corresponding query to answer the question.
+  - cellType: TEXT
+    cellId: c2a3d3bc-51a7-4fcd-ae56-840d8dd0eeee # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 90
+        - type: paragraph
+          children:
+            - text: What is the ratio between the number of items sold over the internet in the morning (8 to 9am) to the number of items sold in the evening (7 to 8pm) of customers with a specified number of dependents. Consider only websites with a high amount of content.
+        - type: paragraph
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: HOUR_PM.01 = 19
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: HOUR_AM.01 = 8
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: DEPCNT.01 = 6
+  - cellType: SQL
+    cellId: 778bcf0a-a8c3-4ea7-af10-3a5041904dd5 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Query 90
+    config:
+      source: |-
+        select  cast(amc as decimal(15,4))/cast(pmc as decimal(15,4)) am_pm_ratio
+         from ( select count(*) amc
+               from web_sales, household_demographics , time_dim, web_page
+               where ws_sold_time_sk = time_dim.t_time_sk
+                 and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
+                 and ws_web_page_sk = web_page.wp_web_page_sk
+                 and time_dim.t_hour between 8 and 8+1
+                 and household_demographics.hd_dep_count = 6
+                 and web_page.wp_char_count between 5000 and 5200) at,
+              ( select count(*) pmc
+               from web_sales, household_demographics , time_dim, web_page
+               where ws_sold_time_sk = time_dim.t_time_sk
+                 and ws_ship_hdemo_sk = household_demographics.hd_demo_sk
+                 and ws_web_page_sk = web_page.wp_web_page_sk
+                 and time_dim.t_hour between 19 and 19+1
+                 and household_demographics.hd_dep_count = 6
+                 and web_page.wp_char_count between 5000 and 5200) pt
+         order by am_pm_ratio
+         limit 100;
+      dataFrameCell: false
+      dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+      resultVariableName: query_90
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: METRIC
+    cellId: a977485a-3e10-4f9e-88f7-713057be9359 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Ratio of items sold at day vs night
+      valueVariableName: query_90
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: PLAIN
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: AM_PM_RATIO
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: TEXT
+    cellId: b1f45371-33b8-45eb-ab88-e02fa122e20d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Advertisement
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Services
+        - type: p
+          children:
+            - bold: true
+              text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: The query is intended to be used in scenarios where you want to analyze the sales patterns of internet-based businesses, particularly e-commerce websites, during different times of the day. It focuses on the morning and evening hours and takes into account the number of dependents for customers. It provides a detailed analysis of transaction patterns during specific time periods, considering customer demographics (dependents) and website content. It helps businesses make data-driven decisions to enhance customer engagement and sales.
+        - type: h4
+          children:
+            - text: |-
+                
+                Use Case:
+        - type: p
+          children:
+            - text: Advertisers can use the insights from the query to determine the most effective times to run their ad campaigns. For example, if the analysis shows that customers with dependents are more active and make more online purchases in the morning (8 to 9 am), advertisers can schedule their ads to run during this time to maximize visibility and engagement.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: Roughly 60% more items were sold in the morning compared to the evening for this specific group of customers  with 6 dependents under the specified conditions.
+  - cellType: TEXT
+    cellId: 54fe7c94-4cb0-4cfe-937f-992b1d6dc7bf # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - bold: true
+              text: Query 91
+        - type: paragraph
+          children:
+            - text: Display total returns of catalog sales by call center and manager in a particular month for male customers of unknown education or female customers with advanced degrees with a specified buy potential and from a particular time zone.
+        - type: paragraph
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: YEAR.01 = 1998
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: MONTH.01 = 11
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: BUY_POTENTIAL.01 = Unknown
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: GMT.01 = -7
+  - cellType: BLOCK
+    cellId: 75a97d6b-ee66-4985-9787-1b2825436618 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      blockConfig:
+        sqlCellId: 31974963-a747-40cb-97e3-21c51de148b1
+        chartCellId: 6af2bf72-b65c-42b0-ba5e-2f83683bb5d0
+        activeTab: preview
+      cells:
+        - cellType: SQL
+          cellId: 31974963-a747-40cb-97e3-21c51de148b1
+          cellLabel: Query 91
+          config:
+            source: |-
+              SELECT cc_call_center_id Call_Center, 
+                     cc_name           Call_Center_Name, 
+                     cc_manager        Manager, 
+                     Sum(cr_net_loss)  Returns_Loss 
+              FROM   call_center, 
+                     catalog_returns, 
+                     date_dim, 
+                     customer, 
+                     customer_address, 
+                     customer_demographics, 
+                     household_demographics 
+              WHERE  cr_call_center_sk = cc_call_center_sk 
+                     AND cr_returned_date_sk = d_date_sk 
+                     AND cr_returning_customer_sk = c_customer_sk 
+                     AND cd_demo_sk = c_current_cdemo_sk 
+                     AND hd_demo_sk = c_current_hdemo_sk 
+                     AND ca_address_sk = c_current_addr_sk 
+                     AND d_year = 2000 
+                     AND d_moy = 11 
+                     AND ( ( cd_marital_status = 'M' 
+                             AND cd_education_status = 'Unknown' ) 
+                            OR ( cd_marital_status = 'W' 
+                                 AND cd_education_status = 'Advanced Degree' ) ) 
+                     AND hd_buy_potential LIKE 'Unknown%' 
+                     AND ca_gmt_offset = -7 
+              GROUP  BY cc_call_center_id, 
+                        cc_name, 
+                        cc_manager, 
+                        cd_marital_status, 
+                        cd_education_status 
+              ORDER  BY Sum(cr_net_loss) DESC; 
+            dataFrameCell: false
+            dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+            resultVariableName: query_91
+            useRichDisplay: false
+            sqlCellOutputType: PANDAS
+            useQueryMode: false
+            castDecimals: true
+            useNativeDates: true
+            outputFilteredResult: true
+            allowDuplicateColumns: false
+            tableDisplayConfig:
+              pageSize: 50
+              height: null
+              hideIcons: false
+              hideIndex: false
+              defaultSortColumn: null
+              defaultSortIndexColumn: null
+              defaultSortDirection: ASC
+              conditionalFormatting: null
+              filters: null
+              columnProperties:
+                - originalName: CALL_CENTER
+                  renameTo: null
+                  size: 159
+                  wrapText: null
+                  displayFormat: null
+                - originalName: CALL_CENTER_NAME
+                  renameTo: null
+                  size: 172
+                  wrapText: null
+                  displayFormat: null
+                - originalName: MANAGER
+                  renameTo: null
+                  size: 117
+                  wrapText: null
+                  displayFormat: null
+                - originalName: RETURNS_LOSS
+                  renameTo: null
+                  size: 158
+                  wrapText: null
+                  displayFormat: null
+              columnOrdering: null
+              pinnedColumns: null
+              hiddenColumns: null
+        - cellType: CHARTV2
+          cellId: 6af2bf72-b65c-42b0-ba5e-2f83683bb5d0
+          cellLabel: null
+          config:
+            height: null
+            chartSpec:
+              type: layered
+              layers:
+                - id: ef64b1f5-cdc4-4721-83ed-07ca5cf4d764
+                  xAxis:
+                    type: string
+                    style:
+                      grid:
+                        style: solid
+                      ticks: {}
+                      labels: {}
+                    dataFrameColumn: CALL_CENTER_NAME
+                  series:
+                    - id: d79d0533-58a4-4405-a46e-e26f5715a256
+                      type: bar
+                      axis:
+                        type: number
+                        style:
+                          grid:
+                            style: solid
+                          ticks: {}
+                          labels: {}
+                        aggregate: sum
+                      dataFrameColumns:
+                        - RETURNS_LOSS
+                      colorOrder: ascending
+                      color:
+                        type: static
+                      opacity:
+                        type: static
+                        value: 1
+                      tooltip:
+                        type: auto
+                      barWidth: 1
+                      orientation: vertical
+                      layout: grouped
+                  dataFrame: query_91
+              settings:
+                legend:
+                  position: right
+                tooltip: true
+                selectionEnabled: false
+            chartSelection: {}
+            colorMappings: {}
+            resultVariable: filter_result
+            outputResult: false
+            displayTableConfig: null
+  - cellType: CODE
+    cellId: db97d16d-16b9-4db8-b388-8a0f65c7cd30 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: query_91['Call Center, Manager'] = query_91['CALL_CENTER_NAME'] + ', ' + query_91['MANAGER']
+  - cellType: CHARTV2
+    cellId: c65ce6b0-f83e-4467-9bf5-ef1c78798211 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: c495f6da-44ef-4b80-aa58-b420e2c07905
+            xAxis:
+              sort: y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: Call Center, Manager
+            series:
+              - id: 098045ac-0194-4a10-85d5-a97510df524f
+                type: bar
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: sum
+                dataFrameColumns:
+                  - RETURNS_LOSS
+                colorOrder: ascending
+                color:
+                  type: static
+                  color: "#72B7B2"
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                dataLabels:
+                  angle: 90
+                  color: "#e4e6ec"
+                  position: outside-end
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: query_91
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      colorMappings:
+        NY Metro: "#72B7B2"
+        California: "#4C78A8"
+        NY Metro_1: "#54A24B"
+        NY Metro_2: "#EECA3B"
+        NY Metro_3: "#B279A2"
+        NY Metro_4: "#FF9DA6"
+        California_1: "#F58518"
+        California_2: "#E45756"
+        California_3: "#72B7B2"
+        Mid Atlantic: "#9D755D"
+        Hawaii/Alaska: "#54A24B"
+        North Midwest: "#9D755D"
+        Mid Atlantic_1: "#BAB0AC"
+        Mid Atlantic_2: "#4C78A8"
+        Mid Atlantic_3: "#F58518"
+        Mid Atlantic_4: "#E45756"
+        Hawaii/Alaska_1: "#EECA3B"
+        Hawaii/Alaska_2: "#B279A2"
+        Hawaii/Alaska_3: "#FF9DA6"
+        North Midwest_1: "#BAB0AC"
+        North Midwest_2: "#4C78A8"
+        North Midwest_3: "#F58518"
+        North Midwest_4: "#E45756"
+        Pacific Northwest: "#72B7B2"
+        Pacific Northwest_1: "#54A24B"
+        Pacific Northwest_2: "#EECA3B"
+        Pacific Northwest_3: "#B279A2"
+      resultVariable: filter_result_3
+      outputResult: false
+      displayTableConfig: null
+  - cellType: TEXT
+    cellId: dcd471de-4264-49a6-ab12-01cdbec6b717 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Assortment
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Services
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: paragraph
+          children:
+            - text: |
+                The primary purpose of this query is to calculate the total returns (losses) associated with catalog sales.The query segments the total returns by call center and manager. It focuses on two specific demographic groups: males with unknown education status and females with advanced degrees. The query applies filters to include only customers with "Unknown" buy potential and customers in a specific time zone (ca_gmt_offset = -7). The results are sorted in descending order of total returns. This means that the call centers, managers, and demographic groups with the highest returns will appear at the top of the result set. 
+        - type: h4
+          children:
+            - text: "Use Case:"
+        - type: p
+          children:
+            - text: The organization can better understand how various client segments contribute to returns by analyzing returns for certain demographic groupings, such as males with undetermined educational status and female with advanced degrees.  Insights into the behavior of customers who might not have a clear buying intent can be gained by filtering for clients with "Unknown" buy potential. The company can then take targeted measures to reduce these losses, such as strengthening customer service, raising the quality of its products, or changing its return procedures. Companies may effectively deploy resources by allocating marketing dollars and staff to the most lucrative locations when they have a thorough understanding of the performance of call centers and managers.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - bold: true
+              text: "Output:"
+        - type: p
+          children:
+            - text: Most of these call centers are located in California, New York and Mid Atlantics Region. By bringing some changes in the offerings for these particular groups, the loss can be minimized.
+  - cellType: TEXT
+    cellId: 9ce6e14d-7686-4f66-a92e-e7e9f38aa56e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 92
+        - type: p
+          children:
+            - text: ""
+        - type: p
+          children:
+            - text: Compute the total discount on web sales of items from a given manufacturer over a particular 90 day period for sales whose discount exceeded 30% over the average discount of items from that manufacturer in that period of time.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: IMID.01 = 350
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: WSDATE.01 = 2000-01-27
+  - cellType: SQL
+    cellId: 4e33c8c2-a79c-4526-b616-9c81b6eb55ed # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Query 92 temp
+    config:
+      source: |-
+        SELECT  
+           sum(ws_ext_discount_amt)  AS "Excess Discount Amount" 
+        FROM 
+            web_sales 
+           ,item 
+           ,date_dim
+        WHERE
+        i_manufact_id = 350
+        AND i_item_sk = ws_item_sk 
+        AND d_date BETWEEN '2000-01-27' AND 
+                dateadd(day,90,to_date('2000-01-27'))
+        AND d_date_sk = ws_sold_date_sk 
+        AND ws_ext_discount_amt  
+             > ( 
+                 SELECT 
+                    1.3 * avg(ws_ext_discount_amt) 
+                 FROM 
+                    web_sales 
+                   ,date_dim
+                 WHERE 
+                      ws_item_sk = i_item_sk 
+                  AND d_date BETWEEN '2000-01-27' AND
+                                     dateadd(day,90,to_date('2000-01-27'))
+                  AND d_date_sk = ws_sold_date_sk 
+              ) 
+        ORDER BY SUM(ws_ext_discount_amt)
+        LIMIT 100;
+      dataFrameCell: false
+      dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+      resultVariableName: query_92_temp
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: e3d20e67-8cc2-4c8f-8c60-f1af0bea184d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        query_92 = query_92_temp.copy()
+        query_92.iloc[0] = int(float(query_92.iloc[0]))
+        query_92
+  - cellType: METRIC
+    cellId: 69f5e7ca-6872-48e6-8e13-7c95345517de # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Excess Discount Amount
+      valueVariableName: query_92
+      showComparison: false
+      comparisonType: PERCENTAGE
+      comparisonVariableName: null
+      comparisonFormat: POSITIVE_NEGATIVE
+      comparisonLabel: ""
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: Excess Discount Amount
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: 0
+  - cellType: TEXT
+    cellId: 8757d8d5-a366-439f-8f35-083404d468e9 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Pricing
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Service
+        - type: p
+          children:
+            - bold: true
+              text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: |
+                The provided SQL query is attempting to find and calculate the total discount on web sales for items from a specific manufacturer, ID 350 that meets certain criteria over a particular 90-day period. The query seeks to identify and sum the discounts on sales where the discount exceeded 30% over the average discount for items from that manufacturer during the specified time frame.
+        - type: h4
+          children:
+            - text: "Use Case:"
+        - type: p
+          children:
+            - text: A company in the retail sector has noticed a significant Excess Discount Amount provided by one of its key manufacturers over a three-month period. The excess discounts have raised concerns about the financial impact and the overall relationship with the manufacturer. The terms of the contract between the company and the manufacturer would be reviewed to ensure that the excess discounts align with the agreed-upon terms. Any discrepancies would be addressed through negotiations or contract revisions. Conducting a Supplier Performance Review in response to excess discounts allows the company to assess the overall health of its supplier relationship, improve product quality, optimize costs, and mitigate risks, ultimately ensuring the continued success of its operations.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: The amount of discount provided is huge withtin the 90 days period. The company should negotiate with the manufacturer to bring changes in the pricings
+  - cellType: TEXT
+    cellId: b8968b72-8fc1-4570-ad07-b9ca7b456916 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 93
+        - type: p
+          children:
+            - text: For a given merchandise return reason, report on customers’ total cost of purchases minus the cost of returned items.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: |
+                        REASON.01 = reason 28
+  - cellType: BLOCK
+    cellId: 459f66d5-3380-421e-b123-f0d2fa1011b8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      blockConfig:
+        sqlCellId: 3e09aa06-fb33-4c5c-aa4d-47441d07f671
+        chartCellId: 021fed16-fd76-463f-9f43-b6fac8cee7c8
+        activeTab: preview
+      cells:
+        - cellType: SQL
+          cellId: 3e09aa06-fb33-4c5c-aa4d-47441d07f671
+          cellLabel: Query 93
+          config:
+            source: |-
+              select  ss_customer_sk
+                          ,sum(act_sales) sumsales
+                    from (select ss_item_sk
+                                ,ss_ticket_number
+                                ,ss_customer_sk
+                                ,case when sr_return_quantity is not null then (ss_quantity-sr_return_quantity)*ss_sales_price
+                                                                          else (ss_quantity*ss_sales_price) end act_sales
+                          from store_sales left outer join store_returns on (sr_item_sk = ss_item_sk
+                                                                             and sr_ticket_number = ss_ticket_number)
+                              ,reason
+                          where sr_reason_sk = r_reason_sk
+                            and r_reason_desc = 'reason 28') t
+                    group by ss_customer_sk
+                    order by sumsales, ss_customer_sk
+              limit 100;
+            dataFrameCell: false
+            dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+            resultVariableName: query_93
+            useRichDisplay: false
+            sqlCellOutputType: PANDAS
+            useQueryMode: false
+            castDecimals: true
+            useNativeDates: true
+            outputFilteredResult: true
+            allowDuplicateColumns: false
+            tableDisplayConfig:
+              pageSize: 50
+              height: null
+              hideIcons: false
+              hideIndex: false
+              defaultSortColumn: null
+              defaultSortIndexColumn: null
+              defaultSortDirection: ASC
+              conditionalFormatting: null
+              filters: null
+              columnProperties: []
+              columnOrdering: null
+              pinnedColumns: null
+              hiddenColumns: null
+        - cellType: CHARTV2
+          cellId: 021fed16-fd76-463f-9f43-b6fac8cee7c8
+          cellLabel: null
+          config:
+            height: null
+            chartSpec:
+              type: layered
+              layers:
+                - id: f16cdc48-b47c-4afb-8b2b-82d454b57b3a
+                  xAxis:
+                    type: number
+                    style:
+                      grid:
+                        style: solid
+                      ticks: {}
+                      labels: {}
+                    dataFrameColumn: SS_CUSTOMER_SK
+                  series:
+                    - id: 17543a46-9b9c-4753-bb9d-64f0a07c2449
+                      type: scatter
+                      axis:
+                        type: number
+                        style:
+                          grid:
+                            style: solid
+                          ticks: {}
+                          labels: {}
+                        aggregate: sum
+                      dataFrameColumns:
+                        - SUMSALES
+                      colorOrder: ascending
+                      color:
+                        type: static
+                      opacity:
+                        type: static
+                        value: 1
+                      tooltip:
+                        type: auto
+                      filled: true
+                  dataFrame: query_93
+              settings:
+                legend:
+                  position: right
+                tooltip: true
+                selectionEnabled: false
+            chartSelection: {}
+            colorMappings: {}
+            resultVariable: filter_result
+            outputResult: false
+            displayTableConfig: null
+  - cellType: TABLE_DISPLAY
+    cellId: 525ed6d8-d9d3-462d-bfd7-143aa8188e83 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      dataFrameVariableName: query_93
+      resultVariable: table_result_2
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters: null
+        columnProperties:
+          - originalName: SS_CUSTOMER_SK
+            renameTo: null
+            size: 157
+            wrapText: null
+            displayFormat: null
+          - originalName: SUMSALES
+            renameTo: null
+            size: 114
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: TEXT
+    cellId: c97c94b1-9708-445f-8eee-cd1147632a9b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Search
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Services
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: |
+                The query performs a crucial calculation by assessing customer spending patterns. It first calculates each customer's total cost of purchases, summing the expenses associated with all items they have bought. Additionally, it determines the total cost of items returned by these customers for "reason 28." The query's main output is the net spending metric for each customer, obtained by subtracting the cost of the returned items from their total purchases. 
+        - type: h4
+          children:
+            - text: "Use case:"
+        - type: p
+          children:
+            - text: A pattern of net spending at 0 may suggest that certain products or product categories are frequently returned for "reason 28," potentially indicating quality or functionality concerns. Businesses can use this information to investigate and improve product quality.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - bold: true
+              text: "Output:"
+        - type: p
+          children:
+            - text: "From the ouptput it ca be noticed that the net spending of all the customers was 0 which suggests that, considering the specified return reason, the customer's financial impact on the company is neutral, indicating that their purchases and returns have effectively canceled each other out during the specified period. "
+  - cellType: TEXT
+    cellId: 71623535-c6c0-4809-8b97-927f9ff8a1f3 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 94
+        - type: p
+          children:
+            - text: Produce a count of web sales and total shipping cost and net profit in a given 60 day period to customers in a given state from a named web site for non returned orders shipped from more than one warehouse.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: YEAR.01 = 1999
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: MONTH.01 = 2
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: STATE.01 = IL
+  - cellType: BLOCK
+    cellId: cbef04df-5215-446d-ba08-e0604889897c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      blockConfig:
+        sqlCellId: ab1878be-bea3-4eca-a06f-6663828f27bf
+        chartCellId: 349252f6-c74e-4ece-a7de-a8e16dc0f101
+        activeTab: preview
+      cells:
+        - cellType: SQL
+          cellId: ab1878be-bea3-4eca-a06f-6663828f27bf
+          cellLabel: Query 94
+          config:
+            source: |-
+              select  
+                 count(distinct ws_order_number) as "order count"
+                ,sum(ws_ext_ship_cost) as "total shipping cost"
+                ,sum(ws_net_profit) as "total net profit"
+              from
+                 web_sales ws1
+                ,date_dim
+                ,customer_address
+                ,web_site
+              where
+                  d_date between '1999-2-01' and 
+                         dateadd(day,60,to_date('1999-2-01'))
+              and ws1.ws_ship_date_sk = d_date_sk
+              and ws1.ws_ship_addr_sk = ca_address_sk
+              and ca_state = 'IL'
+              and ws1.ws_web_site_sk = web_site_sk
+              and web_company_name = 'pri'
+              and exists (select *
+                          from web_sales ws2
+                          where ws1.ws_order_number = ws2.ws_order_number
+                            and ws1.ws_warehouse_sk <> ws2.ws_warehouse_sk)
+              and not exists(select *
+                             from web_returns wr1
+                             where ws1.ws_order_number = wr1.wr_order_number)
+              order by count(distinct ws_order_number)
+              limit 100;
+            dataFrameCell: false
+            dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+            resultVariableName: query_94
+            useRichDisplay: false
+            sqlCellOutputType: PANDAS
+            useQueryMode: false
+            castDecimals: true
+            useNativeDates: true
+            outputFilteredResult: true
+            allowDuplicateColumns: false
+            tableDisplayConfig:
+              pageSize: 50
+              height: null
+              hideIcons: false
+              hideIndex: false
+              defaultSortColumn: null
+              defaultSortIndexColumn: null
+              defaultSortDirection: ASC
+              conditionalFormatting: null
+              filters: null
+              columnProperties: []
+              columnOrdering: null
+              pinnedColumns: null
+              hiddenColumns: null
+        - cellType: CHARTV2
+          cellId: 349252f6-c74e-4ece-a7de-a8e16dc0f101
+          cellLabel: null
+          config:
+            height: null
+            chartSpec:
+              type: layered
+              layers:
+                - id: 5f750054-dc23-4738-a008-f17323f0fd29
+                  xAxis:
+                    type: number
+                    style:
+                      grid:
+                        style: solid
+                      ticks: {}
+                      labels: {}
+                    dataFrameColumn: order count
+                  series:
+                    - id: 335248ba-ba38-4c67-8a85-63d474da6070
+                      type: bar
+                      axis:
+                        type: number
+                        style:
+                          grid:
+                            style: solid
+                          ticks: {}
+                          labels: {}
+                        aggregate: sum
+                      dataFrameColumns:
+                        - total net profit
+                      colorOrder: ascending
+                      color:
+                        type: static
+                      opacity:
+                        type: static
+                        value: 1
+                      tooltip:
+                        type: auto
+                      barWidth: 1
+                      orientation: vertical
+                      layout: grouped
+                  dataFrame: query_94
+              settings:
+                legend:
+                  position: right
+                tooltip: true
+                selectionEnabled: false
+            chartSelection: {}
+            colorMappings: {}
+            resultVariable: filter_result
+            outputResult: false
+            displayTableConfig: null
+  - cellType: CODE
+    cellId: 6d18a7bf-3f2e-445f-8f7f-f0ef9e0b4328 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: "query_94 "
+  - cellType: TEXT
+    cellId: 94ebe67e-4c41-40a8-91d7-ef6c1914a728 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Pricing
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Services
+        - type: p
+          children:
+            - bold: true
+              text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: |
+                This report allows businesses to assess their web sales performance in a particular state (Illinois) during a specific 60-day period. It focuses on orders meeting specific criteria (non-returned, shipped from multiple warehouses) and provides valuable insights into order count, shipping costs, and net profitability for these transactions. 
+        - type: h4
+          children:
+            - text: "Use case:"
+        - type: p
+          children:
+            - text: |
+                Recognizing a negative net profit for these specific orders highlights the need to investigate the underlying causes. It could be due to factors like high shipping costs, product returns, or pricing issues. Identifying and addressing these issues can help mitigate future losses. The data can reveal whether pricing strategies for specific products or categories are effective. Negative net profit might suggest that prices need to be adjusted to maintain profitability, or it could indicate that discounts and promotions are not yielding the desired results.
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: The negative net profit suggests that the company incurred a loss during this period for these specific orders.
+  - cellType: TEXT
+    cellId: 5234229b-ba75-4884-8ede-59777ae8a890 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - bold: true
+              text: Query 95
+        - type: p
+          children:
+            - text: Produce a count of web sales and total shipping cost and net profit in a given 60 day period to customers in a given state from a named web site for returned orders shipped from more than one warehouse.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: STATE.01=IL
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: MONTH.01=2
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: YEAR.01=1999
+  - cellType: SQL
+    cellId: abdcc8ab-d90c-4fed-826a-fb6418d61e07 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Query 95
+    config:
+      source: |-
+        with ws_wh as
+        (select ws1.ws_order_number,ws1.ws_warehouse_sk wh1,ws2.ws_warehouse_sk wh2
+         from web_sales ws1,web_sales ws2
+         where ws1.ws_order_number = ws2.ws_order_number
+           and ws1.ws_warehouse_sk <> ws2.ws_warehouse_sk)
+         select  
+           count(distinct ws_order_number) as "order count"
+          ,sum(ws_ext_ship_cost) as "total shipping cost"
+          ,sum(ws_net_profit) as "total net profit"
+        from
+           web_sales ws1
+          ,date_dim
+          ,customer_address
+          ,web_site
+        where
+            d_date between '1999-2-01' and 
+                   dateadd(day,60,to_date('1999-2-01'))
+        and ws1.ws_ship_date_sk = d_date_sk
+        and ws1.ws_ship_addr_sk = ca_address_sk
+        and ca_state = 'IL'
+        and ws1.ws_web_site_sk = web_site_sk
+        and web_company_name = 'pri'
+        and ws1.ws_order_number in (select ws_order_number
+                                    from ws_wh)
+        and ws1.ws_order_number in (select wr_order_number
+                                    from web_returns,ws_wh
+                                    where wr_order_number = ws_wh.ws_order_number)
+        order by count(distinct ws_order_number)
+        limit 100;
+      dataFrameCell: false
+      dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+      resultVariableName: query_95
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: CODE
+    cellId: eb325891-8bee-424b-8dc9-7eaa68e5a2c7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: query_95
+  - cellType: TEXT
+    cellId: 730e226f-121c-4d68-ad1c-a6959b689ae0 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Pricing
+            - text: " purposes under P"
+            - bold: true
+              text: rogrammatic Services
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: This report allows businesses to assess their web sales performance in a particular state (Illinois) during a specific 60-day period. It focuses on orders meeting specific criteria (returned, shipped from multiple warehouses) and provides valuable insights into order count, shipping costs, and net profitability for these transactions. The negative net profit suggests that the company incurred a loss during this period for these specific orders.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Use Case:"
+        - type: p
+          children:
+            - text: The presence of returned orders may indicate inefficiencies in the company's fulfillment, shipping, or customer service processes. Identifying these inefficiencies can lead to operational improvements, cost reductions, and enhanced customer experiences.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: As there are huge number of items returned there is a negative net profit suggesting loss during this period for these specific orders.
+  - cellType: TEXT
+    cellId: 8c6badf5-be0a-42c5-8c99-04e4958dd3dc # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h4
+          children:
+            - text: Web Sales Performance for Returned and Non-Returned
+  - cellType: TEXT
+    cellId: a10e9b9f-e3c1-4132-8ed3-6346c4bbec56 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h4
+          children:
+            - text: A)   Non-Returned
+  - cellType: METRIC
+    cellId: a139f278-31b5-4e1c-bdd5-4297d6bdd16d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Order Count
+      valueVariableName: query_94
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: PLAIN
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: order count
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 39e464b1-7a52-48ef-ad5d-10388b553271 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Total Shipping Cost
+      valueVariableName: query_94
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: total shipping cost
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: f93e4b45-d822-4b87-abec-34f6d9c355ae # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Net Loss
+      valueVariableName: query_94
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: total net profit
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: TEXT
+    cellId: 15ebdae1-8b04-4871-8bd4-64c0b8ebf843 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h4
+          children:
+            - text: B)   Returned
+  - cellType: METRIC
+    cellId: ea6edaa5-55bd-44ea-82cd-4b965a45e304 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Order Count
+      valueVariableName: query_95
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: PLAIN
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: order count
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: b5fecbbb-f042-4747-9755-d7a7b5a490ae # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Total Shipping Cost
+      valueVariableName: query_95
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: total shipping cost
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 5f212173-f9d1-409b-8a33-ad0fe7e12f03 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Net Loss
+      valueVariableName: query_95
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: CURRENCY
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: total net profit
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: METRIC
+    cellId: 881d8d82-bf83-4c9a-8848-0b5eaf92618d # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Returned Order Count
+      valueVariableName: query_95
+      showComparison: true
+      comparisonType: ABSOLUTE
+      comparisonVariableName: query_94
+      comparisonFormat: POSITIVE_NEGATIVE
+      comparisonLabel: Non-Returned
+      displayFormat:
+        format: PLAIN
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: order count
+      valueRowIndex: 0
+      comparisonColumn: order count
+      comparisonRowIndex: 0
+  - cellType: TEXT
+    cellId: ccdc32e6-77a6-420b-8c24-b0e2bb15d6ef # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 96
+        - type: p
+          children:
+            - text: Compute a count of sales from a named store to customers with a given number of dependents made in a specified half hour period of the day.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: HOUR.01 = 20
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: DEPCNT.01 = 7
+  - cellType: SQL
+    cellId: bbf6b164-a35b-4a3b-b8d9-7785de3008c8 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Query 96
+    config:
+      source: |-
+        select  count(*) 
+        from store_sales
+            ,household_demographics 
+            ,time_dim, store
+        where ss_sold_time_sk = time_dim.t_time_sk   
+            and ss_hdemo_sk = household_demographics.hd_demo_sk 
+            and ss_store_sk = s_store_sk
+            and time_dim.t_hour = 20
+            and time_dim.t_minute <= 30
+            and household_demographics.hd_dep_count = 7
+            and store.s_store_name = 'ese'
+        order by count(*)
+        limit 100;
+      dataFrameCell: false
+      dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+      resultVariableName: query_96
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: METRIC
+    cellId: e3bdbd9d-c875-455f-a080-f141c4ecd4c5 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      title: Count of Sales
+      valueVariableName: query_96
+      showComparison: false
+      comparisonType: VALUE
+      comparisonVariableName: null
+      comparisonFormat: null
+      comparisonLabel: ""
+      displayFormat:
+        format: PLAIN
+        currency: USD
+        columnType: NUMBER
+        numDecimalDigits: 2
+        abbreviateLargeNumbers: false
+      valueColumn: COUNT(*)
+      valueRowIndex: 0
+      comparisonColumn: null
+      comparisonRowIndex: null
+  - cellType: TEXT
+    cellId: 7b4bbfa7-e712-4dbf-af8c-93ec8abe5f92 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Promotions
+            - text: " purposes under "
+            - bold: true
+              text: Programmatic Services
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: The query focuses on sales made in a specified half-hour period of the day. The hour is set to 20, and the minute is set to be greater than or equal to 30. This corresponds to sales occurring between 8:00 PM and 8:30 PM.The sales are attributed to a named store with the store name 'ese'. The query further filters sales based on the number of dependents associated with the customers. It considers sales to customers who have exactly 7 dependents.
+        - type: h4
+          children:
+            - text: |-
+                
+                Use Case:
+        - type: p
+          children:
+            - text: The query focuses on sales to customers with exactly 7 dependents. This can provide insights into the purchasing behavior of customers with larger families. Understanding the preferences and needs of this customer segment can inform marketing and product strategies. If a significant number of sales occur during this time slot, the marketing team can tailor promotions or advertising campaigns to target this period specifically.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: There are multiple customers with 7 dependents who prefer to buy products within the 30 minutes time frame from 8PM, suggesting there are groups of 7 or families which can be targetted for futher analysis.
+  - cellType: TEXT
+    cellId: 5ee7ba6d-5f94-404d-bc6d-65d4574912ca # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 97
+        - type: p
+          children:
+            - text: Generate counts of promotional sales and total sales, and their ratio from the web channel for a particular item category and month to customers in a given time zone.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters:
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: |2
+                         DMS.01 = 1200
+  - cellType: SQL
+    cellId: af90f291-f3a3-4736-8981-6910117ae0cb # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Query 97
+    config:
+      source: |-
+        with ssci as (
+        select ss_customer_sk customer_sk
+              ,ss_item_sk item_sk
+        from store_sales,date_dim
+        where ss_sold_date_sk = d_date_sk
+          and d_month_seq between 1200 and 1200 + 11
+        group by ss_customer_sk
+                ,ss_item_sk),
+        csci as(
+         select cs_bill_customer_sk customer_sk
+              ,cs_item_sk item_sk
+        from catalog_sales,date_dim
+        where cs_sold_date_sk = d_date_sk
+          and d_month_seq between 1200 and 1200 + 11
+        group by cs_bill_customer_sk
+                ,cs_item_sk)
+         select  sum(case when ssci.customer_sk is not null and csci.customer_sk is null then 1 else 0 end) store_only
+              ,sum(case when ssci.customer_sk is null and csci.customer_sk is not null then 1 else 0 end) catalog_only
+              ,sum(case when ssci.customer_sk is not null and csci.customer_sk is not null then 1 else 0 end) store_and_catalog
+        from ssci full outer join csci on (ssci.customer_sk=csci.customer_sk
+                                       and ssci.item_sk = csci.item_sk)
+        limit 100;
+      dataFrameCell: false
+      dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+      resultVariableName: query_97
+      useRichDisplay: false
+      sqlCellOutputType: PANDAS
+      useQueryMode: false
+      castDecimals: true
+      useNativeDates: true
+      outputFilteredResult: true
+      allowDuplicateColumns: false
+      tableDisplayConfig: null
+  - cellType: TABLE_DISPLAY
+    cellId: 9c3c040a-117a-4cbf-994c-de5bfbd31dd7 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      dataFrameVariableName: query_97
+      resultVariable: table_result_3
+      tableDisplayConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters: null
+        columnProperties:
+          - originalName: CATALOG_ONLY
+            renameTo: null
+            size: 341
+            wrapText: null
+            displayFormat: null
+          - originalName: STORE_AND_CATALOG
+            renameTo: null
+            size: 348
+            wrapText: null
+            displayFormat: null
+          - originalName: STORE_ONLY
+            renameTo: null
+            size: 368
+            wrapText: null
+            displayFormat: null
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: TEXT
+    cellId: 61a4b9a7-73fc-47f1-aab3-fb5979faad6f # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Advertisement
+            - text: " purposes under "
+            - bold: true
+              text: Programmatic Services
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: The output of this query provides counts of different sales scenarios, allowing the company to understand how customers interact with their web channel for a specific item category and month. It answers questions such as how many customers exclusively purchase from the web store, how many exclusively purchase from the catalog, and how many use both channels. These insights can inform marketing and sales strategies, including promotional efforts for the web channel.
+        - type: h4
+          children:
+            - text: |-
+                
+                Use Case:
+        - type: p
+          children:
+            - text: The query's output helps marketing teams understand the effectiveness of web channel promotions and their impact on sales. This information can guide future marketing campaigns and promotional strategies.
+        - type: p
+          children:
+            - text: ""
+        - type: h4
+          children:
+            - text: "Output:"
+        - type: p
+          children:
+            - text: "There are more store sales than catalog sales or combined. "
+  - cellType: TEXT
+    cellId: 1123d0ed-f51d-490b-96bc-a474e3a48e62 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 98
+        - type: paragraph
+          children:
+            - text: Report on items sold in a given 30 day period, belonging to the specified category.
+        - type: paragraph
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: " YEAR.01 = 1999"
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: SDATE.01 = 1999-02-22
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: CATEGORY.01 = Sports
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: CATEGORY.02 = Books
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: CATEGORY.03 = Home
+  - cellType: BLOCK
+    cellId: 45ca4ff7-9791-4d12-bfba-6c725cbca1c6 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      blockConfig:
+        sqlCellId: 0a67b703-e24c-47e0-89cb-9133a7ad5e8a
+        chartCellId: 3aa04f58-73f2-4490-bd91-1bbe2a40186b
+        activeTab: preview
+      cells:
+        - cellType: SQL
+          cellId: 0a67b703-e24c-47e0-89cb-9133a7ad5e8a
+          cellLabel: Query 98
+          config:
+            source: |-
+              select i_item_id
+                    ,i_item_desc 
+                    ,i_category 
+                    ,i_class 
+                    ,i_current_price
+                    ,sum(ss_ext_sales_price) as itemrevenue 
+                    ,sum(ss_ext_sales_price)*100/sum(sum(ss_ext_sales_price)) over
+                        (partition by i_class) as revenueratio
+              from	
+              	store_sales
+                  	,item 
+                  	,date_dim
+              where 
+              	ss_item_sk = i_item_sk 
+                	and i_category in ('Sports', 'Books', 'Home')
+                	and ss_sold_date_sk = d_date_sk
+              	and d_date between cast('1999-02-22' as date) 
+              				and dateadd(day,30,to_date('1999-02-22'))
+              group by 
+              	i_item_id
+                      ,i_item_desc 
+                      ,i_category
+                      ,i_class
+                      ,i_current_price
+              order by 
+              	i_category
+                      ,i_class
+                      ,i_item_id
+                      ,i_item_desc
+                      ,revenueratio;
+            dataFrameCell: false
+            dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+            resultVariableName: query_98
+            useRichDisplay: false
+            sqlCellOutputType: PANDAS
+            useQueryMode: false
+            castDecimals: true
+            useNativeDates: true
+            outputFilteredResult: true
+            allowDuplicateColumns: false
+            tableDisplayConfig:
+              pageSize: 50
+              height: null
+              hideIcons: false
+              hideIndex: false
+              defaultSortColumn: null
+              defaultSortIndexColumn: null
+              defaultSortDirection: ASC
+              conditionalFormatting: null
+              filters: []
+              columnProperties:
+                - originalName: ITEMREVENUE
+                  renameTo: null
+                  size: 158
+                  wrapText: null
+                  displayFormat: null
+                - originalName: I_CATEGORY
+                  renameTo: null
+                  size: 125
+                  wrapText: null
+                  displayFormat: null
+                - originalName: I_CLASS
+                  renameTo: null
+                  size: 121
+                  wrapText: null
+                  displayFormat: null
+                - originalName: I_CURRENT_PRICE
+                  renameTo: null
+                  size: 159
+                  wrapText: null
+                  displayFormat: null
+                - originalName: I_ITEM_DESC
+                  renameTo: null
+                  size: 400
+                  wrapText: null
+                  displayFormat: null
+                - originalName: I_ITEM_ID
+                  renameTo: null
+                  size: 159
+                  wrapText: null
+                  displayFormat: null
+                - originalName: REVENUERATIO
+                  renameTo: null
+                  size: 165
+                  wrapText: null
+                  displayFormat: null
+              columnOrdering: null
+              pinnedColumns: null
+              hiddenColumns: null
+        - cellType: CHARTV2
+          cellId: 3aa04f58-73f2-4490-bd91-1bbe2a40186b
+          cellLabel: Item Revenue for Books
+          config:
+            height: null
+            chartSpec:
+              type: layered
+              layers:
+                - id: 65a41526-1a04-46e4-9a76-454748800bf4
+                  xAxis:
+                    sort: -y
+                    type: string
+                    style:
+                      grid:
+                        style: solid
+                      ticks: {}
+                      labels: {}
+                    dataFrameColumn: I_CLASS
+                  series:
+                    - id: b00a6e97-dfa8-486c-89e5-9e230385909d
+                      type: bar
+                      axis:
+                        type: number
+                        style:
+                          grid:
+                            style: solid
+                          ticks: {}
+                          labels: {}
+                        aggregate: sum
+                      dataFrameColumns:
+                        - ITEMREVENUE
+                      colorDataFrameColumn: I_CATEGORY
+                      colorOrder: ascending
+                      color:
+                        type: series
+                        colorsBySeriesValues: {}
+                      opacity:
+                        type: static
+                        value: 1
+                      tooltip:
+                        type: auto
+                      barWidth: 1
+                      orientation: vertical
+                      layout: grouped
+                  dataFrame: query_98
+              settings:
+                legend:
+                  position: none
+                tooltip: true
+                selectionEnabled: false
+            chartSelection: {}
+            colorMappings:
+              Home: "#F58518"
+              Books: "#4C78A8"
+              Sports: "#E45756"
+            resultVariable: filter_result
+            outputResult: false
+            displayTableConfig: null
+  - cellType: CODE
+    cellId: 80007d9e-6061-46c2-97df-3fed603de13c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        query_98_Books = query_98[query_98.I_CATEGORY == 'Books']
+        query_98_Sports = query_98[query_98.I_CATEGORY == 'Sports']
+        query_98_Home = query_98[query_98.I_CATEGORY == 'Home']
+  - cellType: CHARTV2
+    cellId: 28255d09-1175-4e75-927c-2925750c3587 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Average Price of Items under Books
+    config:
+      height: 457
+      chartSpec:
+        type: layered
+        layers:
+          - id: 672082b7-bdcb-477c-a516-89bb02a4055b
+            xAxis:
+              sort: y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              title: Books
+              dataFrameColumn: I_CLASS
+            series:
+              - id: a784b7f0-babe-431c-a882-149e13fcf754
+                type: bar
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: average
+                dataFrameColumns:
+                  - I_CURRENT_PRICE
+                colorOrder: ascending
+                color:
+                  type: static
+                  color: "#72B7B2"
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: query_98_Books
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      colorMappings:
+        Home: "#F58518"
+        arts: "#E45756"
+        golf: "#72B7B2"
+        guns: "#54A24B"
+        kids: "#9D755D"
+        "null": "#4C78A8"
+        rugs: "#BAB0AC"
+        Books: "#4C78A8"
+        decor: "#54A24B"
+        paint: "#54A24B"
+        pools: "#B279A2"
+        Sports: "#E45756"
+        accent: "#4C78A8"
+        hockey: "#B279A2"
+        optics: "#E45756"
+        sports: "#72B7B2"
+        tables: "#54A24B"
+        tennis: "#EECA3B"
+        travel: "#B279A2"
+        archery: "#F58518"
+        bedding: "#FF9DA6"
+        camping: "#4C78A8"
+        cooking: "#E45756"
+        fiction: "#B279A2"
+        fishing: "#FF9DA6"
+        fitness: "#9D755D"
+        history: "#EECA3B"
+        mystery: "#F58518"
+        outdoor: "#72B7B2"
+        romance: "#9D755D"
+        sailing: "#4C78A8"
+        science: "#F58518"
+        baseball: "#54A24B"
+        bathroom: "#B279A2"
+        business: "#BAB0AC"
+        flatware: "#BAB0AC"
+        football: "#4C78A8"
+        lighting: "#BAB0AC"
+        computers: "#F58518"
+        furniture: "#F58518"
+        glassware: "#E45756"
+        parenting: "#EECA3B"
+        reference: "#FF9DA6"
+        self-help: "#E45756"
+        wallpaper: "#FF9DA6"
+        basketball: "#EECA3B"
+        mattresses: "#4C78A8"
+        home repair: "#FF9DA6"
+        blinds/shades: "#9D755D"
+        athletic shoes: "#72B7B2"
+        entertainments: "#EECA3B"
+        curtains/drapes: "#72B7B2"
+      resultVariable: filter_result_7
+      outputResult: true
+      displayTableConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters:
+          - column: I_CLASS
+            predicate:
+              op: AND
+              args:
+                - op: NOT_NULL
+                - op: NOT_ONE_OF
+                  arg:
+                    - "null"
+            columnType: STRING
+        columnProperties: []
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: CHARTV2
+    cellId: da423025-0cae-4cd3-8887-bb79ba4b9dde # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Average Price of Items under Sports
+    config:
+      height: 462
+      chartSpec:
+        type: layered
+        layers:
+          - id: 672082b7-bdcb-477c-a516-89bb02a4055b
+            xAxis:
+              sort: y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              title: Sports
+              dataFrameColumn: I_CLASS
+            series:
+              - id: a784b7f0-babe-431c-a882-149e13fcf754
+                type: bar
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: average
+                dataFrameColumns:
+                  - I_CURRENT_PRICE
+                colorOrder: ascending
+                color:
+                  type: static
+                  color: "#54A24B"
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: query_98_Sports
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      colorMappings: {}
+      resultVariable: filter_result_8
+      outputResult: true
+      displayTableConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters:
+          - column: I_CLASS
+            predicate:
+              op: AND
+              args:
+                - op: NOT_NULL
+                - op: NOT_ONE_OF
+                  arg:
+                    - "null"
+            columnType: STRING
+        columnProperties: []
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: CHARTV2
+    cellId: 0002eeda-bea7-4166-b360-2b24308a23b5 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Average Price of Items under Home
+    config:
+      height: 441
+      chartSpec:
+        type: layered
+        layers:
+          - id: 672082b7-bdcb-477c-a516-89bb02a4055b
+            xAxis:
+              sort: y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              title: Home
+              dataFrameColumn: I_CLASS
+            series:
+              - id: a784b7f0-babe-431c-a882-149e13fcf754
+                type: bar
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: average
+                dataFrameColumns:
+                  - I_CURRENT_PRICE
+                colorOrder: ascending
+                color:
+                  type: static
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: query_98_Home
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      colorMappings: {}
+      resultVariable: filter_result_9
+      outputResult: true
+      displayTableConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters:
+          - column: I_CLASS
+            predicate:
+              op: AND
+              args:
+                - op: NOT_NULL
+                - op: NOT_ONE_OF
+                  arg:
+                    - "null"
+            columnType: STRING
+        columnProperties: []
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: CHARTV2
+    cellId: 8e633b75-5bfe-4fd2-8209-84f1baf5638b # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: Revenue by Category and Class
+    config:
+      height: null
+      chartSpec:
+        type: layered
+        layers:
+          - id: 8fa7c84b-d1ae-4d8b-b420-387b0ba25b2f
+            xAxis:
+              sort: y
+              type: string
+              style:
+                grid:
+                  style: solid
+                ticks: {}
+                labels: {}
+              dataFrameColumn: I_CLASS
+            series:
+              - id: bc9f2773-50c9-4988-9204-01b503019ba9
+                type: bar
+                axis:
+                  type: number
+                  style:
+                    grid:
+                      style: solid
+                    ticks: {}
+                    labels: {}
+                  aggregate: sum
+                dataFrameColumns:
+                  - ITEMREVENUE
+                colorDataFrameColumn: I_CATEGORY
+                colorOrder: y
+                color:
+                  type: series
+                  colorsBySeriesValues:
+                    Home: "#F58518"
+                    Books: "#4C78A8"
+                    Sports: "#E45756"
+                opacity:
+                  type: static
+                  value: 1
+                tooltip:
+                  type: auto
+                barWidth: 1
+                orientation: vertical
+                layout: grouped
+            dataFrame: query_98
+        settings:
+          legend:
+            position: right
+          tooltip: true
+          selectionEnabled: false
+      chartSelection: {}
+      colorMappings:
+        Home: "#F58518"
+        Books: "#4C78A8"
+        Sports: "#E45756"
+      resultVariable: filter_result_10
+      outputResult: true
+      displayTableConfig:
+        pageSize: 50
+        height: null
+        hideIcons: false
+        hideIndex: false
+        defaultSortColumn: null
+        defaultSortIndexColumn: null
+        defaultSortDirection: ASC
+        conditionalFormatting: null
+        filters:
+          - column: I_CLASS
+            predicate:
+              op: AND
+              args:
+                - op: NOT_NULL
+                - op: NOT_ONE_OF
+                  arg:
+                    - "null"
+            columnType: STRING
+        columnProperties: []
+        columnOrdering: null
+        pinnedColumns: null
+        hiddenColumns: null
+  - cellType: TEXT
+    cellId: d5ac8729-1561-487f-981b-ceea5015ae68 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for "
+            - bold: true
+              text: Search
+            - text: " purposes under "
+            - bold: true
+              text: Programmatic Services
+        - type: p
+          children:
+            - bold: true
+              text: ""
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: "This SQL query is designed to generate a report on items sold within a specified 30-day period for the specified item categories (Sports, Books, Home). The report includes details about the items, their sales revenue, and revenue ratios within their respective classes. "
+        - type: h4
+          children:
+            - text: |-
+                
+                Use Case:
+        - type: paragraph
+          children:
+            - text: |
+                Pricing teams can evaluate the revenue ratios for items within classes to determine whether price adjustments are needed to maximize profitability. Items with low revenue ratios may benefit from pricing optimization.
+        - type: h4
+          children:
+            - text: "Ouput:"
+        - type: p
+          children:
+            - text: "The current price and revenue per item of the categories a re displayed.  "
+  - cellType: TEXT
+    cellId: 83c9879c-09d3-493c-b88a-1eba06341eaa # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: h3
+          children:
+            - text: Query 99
+        - type: p
+          children:
+            - text: For catalog sales, create a report showing the counts of orders shipped within 30 days, from 31 to 60 days, from 61 to 90 days, from 91 to 120 days and over 120 days within a given year, grouped by warehouse, call center and shipping mode.
+        - type: p
+          children:
+            - text: |-
+                
+                Qualification Substitution Parameters
+        - type: ul
+          children:
+            - type: li
+              children:
+                - type: lic
+                  children:
+                    - text: |+
+                        DMS.01 = 1200
+
+  - cellType: BLOCK
+    cellId: 24b28ffd-5f5f-46c0-b9f0-603428599c24 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      blockConfig:
+        sqlCellId: 143504a1-f2ea-46be-bfc1-2761816f2912
+        chartCellId: d58ddd3d-c17a-426c-a41a-480537f05e7d
+        activeTab: preview
+      cells:
+        - cellType: SQL
+          cellId: 143504a1-f2ea-46be-bfc1-2761816f2912
+          cellLabel: Query 99
+          config:
+            source: |-
+              select  
+                 substr(w_warehouse_name,1,20)
+                ,sm_type
+                ,cc_name
+                ,sum(case when (cs_ship_date_sk - cs_sold_date_sk <= 30 ) then 1 else 0 end)  as "30 days" 
+                ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 30) and 
+                               (cs_ship_date_sk - cs_sold_date_sk <= 60) then 1 else 0 end )  as "31-60 days" 
+                ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 60) and 
+                               (cs_ship_date_sk - cs_sold_date_sk <= 90) then 1 else 0 end)  as "61-90 days" 
+                ,sum(case when (cs_ship_date_sk - cs_sold_date_sk > 90) and
+                               (cs_ship_date_sk - cs_sold_date_sk <= 120) then 1 else 0 end)  as "91-120 days" 
+                ,sum(case when (cs_ship_date_sk - cs_sold_date_sk  > 120) then 1 else 0 end)  as ">120 days" 
+              from
+                 catalog_sales
+                ,warehouse
+                ,ship_mode
+                ,call_center
+                ,date_dim
+              where
+                  d_month_seq between 1200 and 1200 + 11
+              and cs_ship_date_sk   = d_date_sk
+              and cs_warehouse_sk   = w_warehouse_sk
+              and cs_ship_mode_sk   = sm_ship_mode_sk
+              and cs_call_center_sk = cc_call_center_sk
+              group by
+                 substr(w_warehouse_name,1,20)
+                ,sm_type
+                ,cc_name
+              order by substr(w_warehouse_name,1,20)
+                      ,sm_type
+                      ,cc_name
+              limit 100;
+            dataFrameCell: false
+            dataConnectionId: eb2674c1-eae1-4a60-a52d-c2570831c470
+            resultVariableName: query_99
+            useRichDisplay: false
+            sqlCellOutputType: PANDAS
+            useQueryMode: false
+            castDecimals: true
+            useNativeDates: true
+            outputFilteredResult: true
+            allowDuplicateColumns: false
+            tableDisplayConfig:
+              pageSize: 50
+              height: null
+              hideIcons: false
+              hideIndex: false
+              defaultSortColumn: null
+              defaultSortIndexColumn: null
+              defaultSortDirection: ASC
+              conditionalFormatting: null
+              filters: null
+              columnProperties: []
+              columnOrdering: null
+              pinnedColumns: null
+              hiddenColumns: null
+        - cellType: CHARTV2
+          cellId: d58ddd3d-c17a-426c-a41a-480537f05e7d
+          cellLabel: null
+          config:
+            height: null
+            chartSpec:
+              type: layered
+              layers:
+                - id: 7614006e-e819-441b-bb10-e29000b52ea5
+                  xAxis:
+                    type: string
+                    style:
+                      grid:
+                        style: solid
+                      ticks: {}
+                      labels: {}
+                    dataFrameColumn: SM_TYPE
+                  series:
+                    - id: 8f55076d-b7c1-4af9-8f36-83080bb8cfbe
+                      type: pie
+                      axis:
+                        type: number
+                        style:
+                          grid:
+                            style: solid
+                          ticks: {}
+                          labels: {}
+                        aggregate: sum
+                      dataFrameColumns:
+                        - 30 days
+                      colorDataFrameColumn: SM_TYPE
+                      colorOrder: ascending
+                      color:
+                        type: series
+                        colorsBySeriesValues: {}
+                      opacity:
+                        type: static
+                        value: 1
+                      tooltip:
+                        type: auto
+                      dataLabels:
+                        position: inside-center
+                      radius: 2
+                      showAsPct: false
+                  dataFrame: query_99
+              settings:
+                legend:
+                  position: right
+                tooltip: true
+                selectionEnabled: false
+            chartSelection: {}
+            colorMappings:
+              EXPRESS: "#4C78A8"
+              LIBRARY: "#F58518"
+              NEXT DAY: "#E45756"
+              OVERNIGHT: "#72B7B2"
+            resultVariable: filter_result
+            outputResult: false
+            displayTableConfig: null
+  - cellType: CODE
+    cellId: f9bccf16-c5fc-4fa6-ae29-63098a68bb8e # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        query_99_long = pd.melt(query_99, id_vars=['SUBSTR(W_WAREHOUSE_NAME,1,20)', 'SM_TYPE', 'CC_NAME'], var_name='Days', value_name='Count of Orders')
+        query_99_long
+  - cellType: CODE
+    cellId: 9f450ecc-35de-4dfc-bfa4-b5d8a464c31c # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      source: |-
+        fig = px.treemap(query_99_long, 
+                         path=['CC_NAME', 'SM_TYPE', 'Days'], 
+                         values='Count of Orders', 
+                         title='Count of Orders as per Ship Mode and Call Center Name')
+
+        fig.show()
+  - cellType: TEXT
+    cellId: 7421525d-59c8-49d5-aba4-f6bd372afb84 # DO NOT CHANGE - Hex uses this to match up cells when reimporting the file, and detect any changes to existing cells
+    cellLabel: null
+    config:
+      richText:
+        - type: p
+          children:
+            - text: "The above query can be used for Search purposes under "
+            - bold: true
+              text: Programmatic Services
+        - type: h4
+          children:
+            - text: "Description:"
+        - type: p
+          children:
+            - text: "The provided SQL query is designed to generate a report that counts catalog orders shipped within different time frames for a specified year. The report is grouped by call center, warehouse, and shipping mode, allowing for a detailed analysis of order shipment patterns. "
+        - type: h4
+          children:
+            - text: |-
+                
+                Use Case:
+        - type: p
+          children:
+            - text: The primary use of this query is to gain insights into the shipment patterns of catalog orders within a given year. It provides a detailed breakdown of how many orders were shipped within specific time frames, allowing businesses to assess their shipping efficiency and meet customer expectations.
+        - type: p
+          children:
+            - text: ""
+        - type: p
+          children:
+            - text: "Output: "
+        - type: p
+          children:
+            - text: It can be seen that the count of orders throughout all the call centers remain the same for the quarter. The midwest and northwest call centers do not have overnight shipping mode.
+appLayout:
+  visibleMetadataFields:
+    - NAME
+    - DESCRIPTION
+    - AUTHOR
+    - LAST_EDITED
+    - LAST_RUN
+    - CATEGORIES
+    - STATUS
+    - TABLE_OF_CONTENTS
+  fullWidth: false
+  tabs:
+    - name: Main
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 189b407d-a878-4752-ae0e-4ea10cba932e
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: a162643c-9879-435a-894f-ec5c31ae89e6
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: c2a3d3bc-51a7-4fcd-ae56-840d8dd0eeee
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 54fe7c94-4cb0-4cfe-937f-992b1d6dc7bf
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 9ce6e14d-7686-4f66-a92e-e7e9f38aa56e
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: b8968b72-8fc1-4570-ad07-b9ca7b456916
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 71623535-c6c0-4809-8b97-927f9ff8a1f3
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 5234229b-ba75-4884-8ede-59777ae8a890
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: ccdc32e6-77a6-420b-8c24-b0e2bb15d6ef
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 5ee7ba6d-5f94-404d-bc6d-65d4574912ca
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 1123d0ed-f51d-490b-96bc-a474e3a48e62
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 83c9879c-09d3-493c-b88a-1eba06341eaa
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 90
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: c2a3d3bc-51a7-4fcd-ae56-840d8dd0eeee
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: b1f45371-33b8-45eb-ab88-e02fa122e20d
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 91
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 54fe7c94-4cb0-4cfe-937f-992b1d6dc7bf
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: c65ce6b0-f83e-4467-9bf5-ef1c78798211
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: dcd471de-4264-49a6-ab12-01cdbec6b717
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 92
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 9ce6e14d-7686-4f66-a92e-e7e9f38aa56e
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 69f5e7ca-6872-48e6-8e13-7c95345517de
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 8757d8d5-a366-439f-8f35-083404d468e9
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 93
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: b8968b72-8fc1-4570-ad07-b9ca7b456916
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 525ed6d8-d9d3-462d-bfd7-143aa8188e83
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: c97c94b1-9708-445f-8eee-cd1147632a9b
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 94 & 95
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 71623535-c6c0-4809-8b97-927f9ff8a1f3
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 6d18a7bf-3f2e-445f-8f7f-f0ef9e0b4328
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 94ebe67e-4c41-40a8-91d7-ef6c1914a728
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 5234229b-ba75-4884-8ede-59777ae8a890
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: eb325891-8bee-424b-8dc9-7eaa68e5a2c7
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 730e226f-121c-4d68-ad1c-a6959b689ae0
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 8c6badf5-be0a-42c5-8c99-04e4958dd3dc
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 881d8d82-bf83-4c9a-8848-0b5eaf92618d
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: a10e9b9f-e3c1-4132-8ed3-6346c4bbec56
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 40
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: a139f278-31b5-4e1c-bdd5-4297d6bdd16d
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 40
+              end: 80
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 39e464b1-7a52-48ef-ad5d-10388b553271
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 80
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: f93e4b45-d822-4b87-abec-34f6d9c355ae
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 15ebdae1-8b04-4871-8bd4-64c0b8ebf843
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 40
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: ea6edaa5-55bd-44ea-82cd-4b965a45e304
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 40
+              end: 80
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: b5fecbbb-f042-4747-9755-d7a7b5a490ae
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 80
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 5f212173-f9d1-409b-8a33-ad0fe7e12f03
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 96
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: ccdc32e6-77a6-420b-8c24-b0e2bb15d6ef
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: e3bdbd9d-c875-455f-a080-f141c4ecd4c5
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 7b4bbfa7-e712-4dbf-af8c-93ec8abe5f92
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 97
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 5ee7ba6d-5f94-404d-bc6d-65d4574912ca
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 9c3c040a-117a-4cbf-994c-de5bfbd31dd7
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 61a4b9a7-73fc-47f1-aab3-fb5979faad6f
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 98
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 1123d0ed-f51d-490b-96bc-a474e3a48e62
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 40
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 28255d09-1175-4e75-927c-2925750c3587
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 40
+              end: 80
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: da423025-0cae-4cd3-8887-bb79ba4b9dde
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+            - start: 80
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 0002eeda-bea7-4166-b360-2b24308a23b5
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 8e633b75-5bfe-4fd2-8209-84f1baf5638b
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+    - name: Query 99
+      rows:
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 83c9879c-09d3-493c-b88a-1eba06341eaa
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 9f450ecc-35de-4dfc-bfa4-b5d8a464c31c
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+        - columns:
+            - start: 0
+              end: 120
+              elements:
+                - showSource: false
+                  hideOutput: false
+                  type: CELL
+                  cellId: 7421525d-59c8-49d5-aba4-f6bd372afb84
+                  sharedFilterId: null
+                  height: null
+                  showLabel: true
+sharedFilters: []

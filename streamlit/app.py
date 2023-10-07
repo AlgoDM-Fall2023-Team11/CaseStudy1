@@ -158,7 +158,7 @@ if st.button("Run Query"):
             hours = hours
 
         )
-        
+
     # Run the query and display results
     st.subheader("Query Results:")
     result_df = execute_query_snowflake(query)
