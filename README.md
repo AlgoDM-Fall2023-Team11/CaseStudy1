@@ -38,6 +38,8 @@ Link to Dashboard (Hex): https://app.hex.tech/212bbec8-feca-4ce7-9e9f-978ca07f74
 
 Your company plans to showcase the Streamlit-Snowflake integration to its clients. This section focuses on building a Streamlit application that connects to Snowflake using SQLAlchemy to run the assignment SQL queries.
 
+![image](https://github.com/AlgoDM-Fall2023-Team11/CaseStudy1/assets/69983754/93a952a7-da2b-4a07-8046-63828fac9313)
+
 #### Streamlit Application
 
 - Built a Streamlit application.
