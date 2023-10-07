@@ -38,6 +38,6 @@ Your company plans to showcase the Streamlit-Snowflake integration to its client
 - Allowed users to change the query substitution parameters from the Streamlit frontend.
 
 
-**###Acknowledgments** 
+**Acknowledgment** 
 
 For any questions or feedback, please reach out to Usashi Roy on roy.u@northeastern.edu, Nakul Shiledar on shiledar.n@northeastern.edu, Krishna Barfiwala on barfiwala.k@northeastern.edu
